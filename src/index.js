@@ -1,13 +1,20 @@
 import './style.css';
 import * as PIXI from 'pixi.js';
 
+const appState = {
+  hands: {
+    player1: ['3S', 'JH', '5H', 'KC', '8D', 'AS'],
+    player2: ['3S', 'JH', '5H', 'KC', '8D', 'AS'],
+  }
+};
+
 const appWidth = 256;
 const appHeight = 256;
 
 const cardWidth = 240;
 const cardHeight = 336;
-const cardScaleX = 0.4;
-const cardScaleY = 0.4;
+const cardScaleX = 0.3;
+const cardScaleY = 0.3;
 
 const app = new PIXI.Application({
   width: appWidth,
@@ -20,7 +27,7 @@ app.renderer.backgroundColor = 0xeeeeee;
 app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
 app.renderer.autoResize = true;
-app.renderer.resize(window.innerWidth, window.innerHeight);
+app.renderer.resize(window.innerWidth-1, window.innerHeight-1);
 
 document.body.appendChild(app.view);
 
@@ -42,18 +49,15 @@ const cardFiles = [
 ];
 
 function init() {
-  cardFiles.map(filename => app.loader.add(getCardname(filename),
-					   filename));
+  cardFiles.map(filename => {
+    app.loader.add(getCardname(filename),
+		   filename);
+  });
   app.loader.load(setup);
 }
 
-const h = ['3S', 'JH', '5H', 'KC', '8D', 'AS'];
-
 function setup() {
-  const handSprites = makeHandSprites(h, 0, 0);
-  handSprites.x = app.screen.width / 2;
-  handSprites.y = app.screen.height / 2;
-  app.stage.addChild(handSprites);
+  drawHands(appState.hands);
 
   // app.ticker.add(delta => gameLoop(delta));
 }
@@ -76,7 +80,7 @@ function makeCardSprite(cardName, x, y) {
   return sprite;
 }
 
-function makeHandSprites(cards, x, y) {
+function makeHandContainer(cards) {
   const container = new PIXI.Container();
 
   const xSpacing = 5;
@@ -93,58 +97,41 @@ function makeHandSprites(cards, x, y) {
 
   for (let i = 3; i < 6; i++) {
     const j = i - 3;
-    const sprite = makeCardSprite(cards[i],
-				  j * cardWidth * cardScaleX + xSpacing * j,
-				  cardHeight * cardScaleY + ySpacing);
+    const sprite = makeCardSprite(
+      cards[i],
+      j * cardWidth * cardScaleX + xSpacing * j,
+      cardHeight * cardScaleY + ySpacing
+    );
     container.addChild(sprite);
   }
-
-  container.x = x;
-  container.y = y;
 
   container.pivot.x = container.width / 2;
   container.pivot.y = container.height / 2;
 
-  container.angle = 90;
-
   return container;
 }
 
+function drawHands(hands) {
+  for (const [player, hand] of Object.entries(hands)) {
+    const handContainer = makeHandContainer(hand);
+
+    switch (player) {
+    case 'player1':
+      handContainer.x = app.screen.width / 2;
+      handContainer.y = app.screen.height - handContainer.height / 2;
+      break;
+
+    case 'player2':
+      handContainer.x = app.screen.width / 2;
+      handContainer.y = handContainer.height / 2;
+      break;
+    }
+
+    app.stage.addChild(handContainer);
+  }
+}
+
 init();
-
-// function drawHand(cards, pos) {
-//   const container = new PIXI.Container();
-//   const xSpacing = 5;
-//   const ySpacing = 5;
-
-//   let sprites = [];
-//   for (let i = 0; i < 3; i++) {
-//     sprites.push(getCardSprite(cards[i],
-// 			       i * (cardWidth * cardScaleX) + (xSpacing * i),
-// 			       0));
-//   }
-
-//   for (let i = 3; i < 6; i++) {
-//     const j = i - 3;
-//     sprites.push(getCardSprite(cards[i],
-// 			       j * (cardWidth * cardScaleX) + (xSpacing * j),
-// 			       cardHeight * cardScaleY + ySpacing));
-//   }
-
-//   sprites.map(sprite => container.addChild(sprite));
-
-//   switch (pos) {
-//   case 'top':
-//     container.x = app.screen.width / 2 - container.width / 2;
-//     break;
-
-//   case 'left':
-//     // container.angle = 90;
-//     break;
-//   }
-
-//   app.stage.addChild(container);
-// }
 
 // function onCardClick(event) {
 //   console.log(this.cardName);
