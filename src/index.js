@@ -41,8 +41,6 @@ const cardFiles = [
   "cards/9S.svg", "cards/JD.svg", "cards/KS.svg", "cards/TD.svg",
 ];
 
-// let sprites = {};
-
 function init() {
   cardFiles.map(filename => app.loader.add(getCardname(filename),
 					   filename));
@@ -52,17 +50,10 @@ function init() {
 const h = ['3S', 'JH', '5H', 'KC', '8D', 'AS'];
 
 function setup() {
-  const handSprites = makeHandSprites(h);
-  handSprites.map(sprite => app.stage.addChild(sprite));
-  // hand.x = 100;
-  // hand.y = 100;
-  // hand.anchor.x = 50;
-  // hand.angle = 180;
-  // hand.pivot.x = 20;
-  // hand.pivot.y = hand.width / 2;
-  // hand.rotation = 0.5;
-  // hand.pivot.set(5, 10);
-  // app.stage.addChild(hand);
+  const handSprites = makeHandSprites(h, 0, 0);
+  handSprites.x = app.screen.width / 2;
+  handSprites.y = app.screen.height / 2;
+  app.stage.addChild(handSprites);
 
   // app.ticker.add(delta => gameLoop(delta));
 }
@@ -85,32 +76,38 @@ function makeCardSprite(cardName, x, y) {
   return sprite;
 }
 
-function makeHandSprites(cards) {
-  // const container = new PIXI.Container();
+function makeHandSprites(cards, x, y) {
+  const container = new PIXI.Container();
+
   const xSpacing = 5;
   const ySpacing = 5;
 
-  const sprites = [];
-
   for (let i = 0; i < 3; i++) {
-    const sprite = makeCardSprite(cards[i],
-				  i * (cardWidth * cardScaleX) + (xSpacing * i),
- 				  0);
-    sprites.push(sprite);
-    // container.addChild(sprite);
+    const sprite = makeCardSprite(
+      cards[i],
+      i * cardWidth * cardScaleX + xSpacing * i,
+      0
+    );
+    container.addChild(sprite);
   }
 
   for (let i = 3; i < 6; i++) {
     const j = i - 3;
     const sprite = makeCardSprite(cards[i],
-				  j * (cardWidth * cardScaleX) + (xSpacing * j),
+				  j * cardWidth * cardScaleX + xSpacing * j,
 				  cardHeight * cardScaleY + ySpacing);
-    sprites.push(sprite);
-    // container.addChild(sprite);
+    container.addChild(sprite);
   }
 
-  return sprites;
-  // return container;
+  container.x = x;
+  container.y = y;
+
+  container.pivot.x = container.width / 2;
+  container.pivot.y = container.height / 2;
+
+  container.angle = 90;
+
+  return container;
 }
 
 init();
