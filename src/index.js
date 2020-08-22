@@ -1,11 +1,13 @@
 import './style.css';
 import * as PIXI from 'pixi.js';
+import { Deck } from './deck.js';
 
 const appState = {
+  deck: new Deck(),
   hands: {
-    player1: ['3S', 'JH', '5H', 'KC', '8D', 'AS'],
-    player2: ['4S', 'JH', '5H', 'KC', '8D', 'AS'],
-  }
+    player1: [],
+    player2: [],
+  },
 };
 
 const appWidth = 256;
@@ -53,16 +55,22 @@ function init() {
     app.loader.add(getCardname(filename),
 		   filename);
   });
+
   app.loader.load(setup);
 }
 
 function setup() {
-  drawHands(appState.hands);
-
+  dealCards();
+  draw();
   // app.ticker.add(delta => gameLoop(delta));
 }
 
 function gameLoop(delta) {
+}
+
+function dealCards() {
+  appState.hands.player1 = appState.deck.deal(6);
+  appState.hands.player2 = appState.deck.deal(6);
 }
 
 function getCardname(filename) {
@@ -120,8 +128,13 @@ function makeSpritesInteractive(handContainer) {
   }
 }
 
-function drawHands(hands) {
-  for (const [player, hand] of Object.entries(hands)) {
+function draw() {
+  drawHands();
+  drawDeck();
+}
+
+function drawHands() {
+  for (const [player, hand] of Object.entries(appState.hands)) {
     const handContainer = makeHandContainer(hand);
 
     switch (player) {
@@ -140,6 +153,14 @@ function drawHands(hands) {
     makeSpritesInteractive(handContainer);
     app.stage.addChild(handContainer);
   }
+}
+
+function drawDeck() {
+  const cardBack = makeCardSprite("2B",
+				  app.screen.width / 2,
+				  app.screen.height / 2);
+  cardBack.anchor.set(0.5, 0.5);
+  app.stage.addChild(cardBack);
 }
 
 function onCardClick(event) {
