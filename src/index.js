@@ -1,18 +1,13 @@
 import './style.css';
 import * as PIXI from 'pixi.js';
 
-const log = console.log;
-
-const appState = {
-};
-
 const appWidth = 256;
 const appHeight = 256;
 
 const cardWidth = 240;
 const cardHeight = 336;
-const cardScaleX = 0.3;
-const cardScaleY = 0.3;
+const cardScaleX = 0.4;
+const cardScaleY = 0.4;
 
 const app = new PIXI.Application({
   width: appWidth,
@@ -46,35 +41,43 @@ const cardFiles = [
   "cards/9S.svg", "cards/JD.svg", "cards/KS.svg", "cards/TD.svg",
 ];
 
-let sprites = {};
+// let sprites = {};
 
-function loadCardSprite(filename) {
-  // TODO replace w/ regex
-  const cardName = filename.split('/')[1].split('.')[0];
-  const sprite = new PIXI.Sprite(app.loader
-  				 .resources[filename]
-  				 .texture);
-  sprite.cardName = cardName;
-  sprite.interactive = true;
-  sprite.on('click', onCardClick);
-  sprites[cardName] = sprite;
+function init() {
+  cardFiles.map(filename => app.loader.add(getCardname(filename),
+					   filename));
+  app.loader.load(setup);
 }
 
+const h = ['3S', 'JH', '5H', 'KC', '8D', 'AS'];
+
 function setup() {
-  cardFiles.map(filename => loadCardSprite(filename));
+  const handSprites = makeHandSprites(h);
+  handSprites.map(sprite => app.stage.addChild(sprite));
+  // hand.x = 100;
+  // hand.y = 100;
+  // hand.anchor.x = 50;
+  // hand.angle = 180;
+  // hand.pivot.x = 20;
+  // hand.pivot.y = hand.width / 2;
+  // hand.rotation = 0.5;
+  // hand.pivot.set(5, 10);
+  // app.stage.addChild(hand);
 
-  drawHand(['3S', 'JH', '5H', 'KC', '8D', 'AS'], 'top');
-  // drawHand(['3S', 'JH', '5H', 'KC', '8D', 'AS'], 'left');
-
-  app.ticker.add(delta => gameLoop(delta));
+  // app.ticker.add(delta => gameLoop(delta));
 }
 
 function gameLoop(delta) {
 }
 
-function getCardSprite(cardName, x, y) {
-  const sprite = sprites[cardName];
+function getCardname(filename) {
+  return filename.split('/')[1].split('.')[0];
+}
 
+function makeCardSprite(cardName, x, y) {
+  const sprite = new PIXI.Sprite(app.loader
+				 .resources[cardName]
+				 .texture);
   sprite.x = x;
   sprite.y = y;
   sprite.scale.set(cardScaleX, cardScaleY);
@@ -82,42 +85,84 @@ function getCardSprite(cardName, x, y) {
   return sprite;
 }
 
-function drawHand(cards, pos) {
-  const container = new PIXI.Container();
+function makeHandSprites(cards) {
+  // const container = new PIXI.Container();
   const xSpacing = 5;
   const ySpacing = 5;
 
-  let sprites = [];
+  const sprites = [];
+
   for (let i = 0; i < 3; i++) {
-    sprites.push(getCardSprite(cards[i],
-			       i * (cardWidth * cardScaleX) + (xSpacing * i),
-			       0));
+    const sprite = makeCardSprite(cards[i],
+				  i * (cardWidth * cardScaleX) + (xSpacing * i),
+ 				  0);
+    sprites.push(sprite);
+    // container.addChild(sprite);
   }
 
   for (let i = 3; i < 6; i++) {
     const j = i - 3;
-    sprites.push(getCardSprite(cards[i],
-			       j * (cardWidth * cardScaleX) + (xSpacing * j),
-			       cardHeight * cardScaleY + ySpacing));
+    const sprite = makeCardSprite(cards[i],
+				  j * (cardWidth * cardScaleX) + (xSpacing * j),
+				  cardHeight * cardScaleY + ySpacing);
+    sprites.push(sprite);
+    // container.addChild(sprite);
   }
 
-  sprites.map(sprite => container.addChild(sprite));
-
-  switch (pos) {
-  case 'top':
-    container.x = app.screen.width / 2 - container.width / 2;
-    break;
-
-  case 'left':
-    // container.angle = 90;
-    break;
-  }
-
-  app.stage.addChild(container);
+  return sprites;
+  // return container;
 }
 
-function onCardClick(event) {
-  console.log(this.cardName);
-}
+init();
 
-app.loader.add(cardFiles).load(setup);
+// function drawHand(cards, pos) {
+//   const container = new PIXI.Container();
+//   const xSpacing = 5;
+//   const ySpacing = 5;
+
+//   let sprites = [];
+//   for (let i = 0; i < 3; i++) {
+//     sprites.push(getCardSprite(cards[i],
+// 			       i * (cardWidth * cardScaleX) + (xSpacing * i),
+// 			       0));
+//   }
+
+//   for (let i = 3; i < 6; i++) {
+//     const j = i - 3;
+//     sprites.push(getCardSprite(cards[i],
+// 			       j * (cardWidth * cardScaleX) + (xSpacing * j),
+// 			       cardHeight * cardScaleY + ySpacing));
+//   }
+
+//   sprites.map(sprite => container.addChild(sprite));
+
+//   switch (pos) {
+//   case 'top':
+//     container.x = app.screen.width / 2 - container.width / 2;
+//     break;
+
+//   case 'left':
+//     // container.angle = 90;
+//     break;
+//   }
+
+//   app.stage.addChild(container);
+// }
+
+// function onCardClick(event) {
+//   console.log(this.cardName);
+// }
+
+// function loadCardSprite(filename) {
+//   // TODO replace w/ regex
+//   const cardName = filename.split('/')[1].split('.')[0];
+//   const sprite = new PIXI.Sprite(app.loader
+//   				 .resources[filename]
+//   				 .texture);
+//   sprite.cardName = cardName;
+//   sprite.interactive = true;
+//   sprite.on('click', onCardClick);
+//   sprites[cardName] = sprite;
+// }
+
+// app.loader.add(cardFiles).load(setup);
