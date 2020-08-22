@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
 const appState = {
   hands: {
     player1: ['3S', 'JH', '5H', 'KC', '8D', 'AS'],
-    player2: ['3S', 'JH', '5H', 'KC', '8D', 'AS'],
+    player2: ['4S', 'JH', '5H', 'KC', '8D', 'AS'],
   }
 };
 
@@ -77,6 +77,8 @@ function makeCardSprite(cardName, x, y) {
   sprite.y = y;
   sprite.scale.set(cardScaleX, cardScaleY);
 
+  sprite.cardName = cardName;
+
   return sprite;
 }
 
@@ -111,6 +113,13 @@ function makeHandContainer(cards) {
   return container;
 }
 
+function makeSpritesInteractive(handContainer) {
+  for (const child of handContainer.children) {
+    child.interactive = true;
+    child.on('click', onCardClick);
+  }
+}
+
 function drawHands(hands) {
   for (const [player, hand] of Object.entries(hands)) {
     const handContainer = makeHandContainer(hand);
@@ -127,26 +136,14 @@ function drawHands(hands) {
       break;
     }
 
+    handContainer.children.map(child => child.player = player);
+    makeSpritesInteractive(handContainer);
     app.stage.addChild(handContainer);
   }
 }
 
+function onCardClick(event) {
+  console.log(this.cardName, this.player);
+}
+
 init();
-
-// function onCardClick(event) {
-//   console.log(this.cardName);
-// }
-
-// function loadCardSprite(filename) {
-//   // TODO replace w/ regex
-//   const cardName = filename.split('/')[1].split('.')[0];
-//   const sprite = new PIXI.Sprite(app.loader
-//   				 .resources[filename]
-//   				 .texture);
-//   sprite.cardName = cardName;
-//   sprite.interactive = true;
-//   sprite.on('click', onCardClick);
-//   sprites[cardName] = sprite;
-// }
-
-// app.loader.add(cardFiles).load(setup);
