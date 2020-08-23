@@ -25,6 +25,8 @@ const app = new PIXI.Application({
   resolution: 1
 });
 
+// PIXI.settings.SCALE_MODE = 'NEAREST';
+
 app.renderer.backgroundColor = 0xeeeeee;
 app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
@@ -34,22 +36,28 @@ app.renderer.resize(window.innerWidth-1, window.innerHeight-1);
 document.body.appendChild(app.view);
 
 const cardFiles = [
-  "cards/1B.svg", "cards/2J.svg", "cards/4C.svg", "cards/5H.svg",
-  "cards/7C.svg", "cards/8H.svg", "cards/AC.svg", "cards/JH.svg",
-  "cards/QC.svg", "cards/TH.svg", "cards/1J.svg", "cards/2S.svg",
-  "cards/4D.svg", "cards/5S.svg", "cards/7D.svg", "cards/8S.svg",
-  "cards/AD.svg", "cards/JS.svg", "cards/QD.svg", "cards/TS.svg",
-  "cards/2B.svg", "cards/3C.svg", "cards/4H.svg", "cards/6C.svg",
-  "cards/7H.svg", "cards/9C.svg", "cards/AH.svg", "cards/KC.svg",
-  "cards/QH.svg", "cards/2C.svg", "cards/3D.svg", "cards/4S.svg",
-  "cards/6D.svg", "cards/7S.svg", "cards/9D.svg", "cards/AS.svg",
-  "cards/KD.svg", "cards/QS.svg", "cards/2D.svg", "cards/3H.svg",
-  "cards/5C.svg", "cards/6H.svg", "cards/8C.svg", "cards/9H.svg",
-  "cards/JC.svg", "cards/KH.svg", "cards/TC.svg", "cards/2H.svg",
-  "cards/3S.svg", "cards/5D.svg", "cards/6S.svg", "cards/8D.svg",
-  "cards/9S.svg", "cards/JD.svg", "cards/KS.svg", "cards/TD.svg",
+  "cards/svg/1B.svg", "cards/svg/2J.svg", "cards/svg/4C.svg",
+  "cards/svg/5H.svg", "cards/svg/7C.svg", "cards/svg/8H.svg",
+  "cards/svg/AC.svg", "cards/svg/JH.svg", "cards/svg/QC.svg",
+  "cards/svg/TH.svg", "cards/svg/1J.svg", "cards/svg/2S.svg",
+  "cards/svg/4D.svg", "cards/svg/5S.svg", "cards/svg/7D.svg",
+  "cards/svg/8S.svg", "cards/svg/AD.svg", "cards/svg/JS.svg",
+  "cards/svg/QD.svg", "cards/svg/TS.svg", "cards/svg/2B.svg",
+  "cards/svg/3C.svg", "cards/svg/4H.svg", "cards/svg/6C.svg",
+  "cards/svg/7H.svg", "cards/svg/9C.svg", "cards/svg/AH.svg",
+  "cards/svg/KC.svg", "cards/svg/QH.svg", "cards/svg/2C.svg",
+  "cards/svg/3D.svg", "cards/svg/4S.svg", "cards/svg/6D.svg",
+  "cards/svg/7S.svg", "cards/svg/9D.svg", "cards/svg/AS.svg",
+  "cards/svg/KD.svg", "cards/svg/QS.svg", "cards/svg/2D.svg",
+  "cards/svg/3H.svg", "cards/svg/5C.svg", "cards/svg/6H.svg",
+  "cards/svg/8C.svg", "cards/svg/9H.svg", "cards/svg/JC.svg",
+  "cards/svg/KH.svg", "cards/svg/TC.svg", "cards/svg/2H.svg",
+  "cards/svg/3S.svg", "cards/svg/5D.svg", "cards/svg/6S.svg",
+  "cards/svg/8D.svg", "cards/svg/9S.svg", "cards/svg/JD.svg",
+  "cards/svg/KS.svg", "cards/svg/TD.svg"
 ];
 
+// load textures, then call setup()
 function init() {
   cardFiles.map(filename => {
     app.loader.add(getCardname(filename),
@@ -65,8 +73,8 @@ function setup() {
   // app.ticker.add(delta => gameLoop(delta));
 }
 
-function gameLoop(delta) {
-}
+// function gameLoop(delta) {
+// }
 
 function dealCards() {
   appState.hands.player1 = appState.deck.deal(6);
@@ -74,7 +82,7 @@ function dealCards() {
 }
 
 function getCardname(filename) {
-  return filename.split('/')[1].split('.')[0];
+  return filename.split('/')[2].split('.')[0];
 }
 
 function makeCardSprite(cardName, x, y) {
@@ -156,15 +164,40 @@ function drawHands() {
 }
 
 function drawDeck() {
-  const cardBack = makeCardSprite("2B",
-				  app.screen.width / 2,
-				  app.screen.height / 2);
-  cardBack.anchor.set(0.5, 0.5);
-  app.stage.addChild(cardBack);
+  const deckSprite = makeCardSprite("2B",
+				    app.screen.width / 2
+				    + cardWidth * cardScaleX,
+				    app.screen.height / 2);
+  deckSprite.x -= cardWidth * cardScaleX / 2;
+  deckSprite.anchor.set(0.5, 0.5);
+  deckSprite.interactive = true;
+  deckSprite.on("click", onDeckClick);
+
+  const dealtCard = appState.deck.deal(1)[0];
+  const dealtSprite = makeCardSprite(dealtCard,
+				     app.screen.width / 2
+				     + cardWidth * cardScaleX,
+				     app.screen.height / 2);
+  dealtSprite.x -= 1.5 * cardWidth * cardScaleX + 2;
+  dealtSprite.anchor.set(0.5, 0.5);
+  dealtSprite.interactive = true;
+  dealtSprite.on("click", onTableCardClick);
+
+  app.stage.addChild(deckSprite);
+  app.stage.addChild(dealtSprite);
 }
 
 function onCardClick(event) {
   console.log(this.cardName, this.player);
+}
+
+function onDeckClick(event) {
+  console.log("deck clicked");
+}
+
+function onTableCardClick(event) {
+  console.log("table card clicked");
+  console.log(this.cardName);
 }
 
 init();
