@@ -1,3 +1,7 @@
+export const suits = ["H", "S", "C", "D"];
+export const values = ["A", "2", "3", "4", "5", "6", "7",
+		       "8", "9", "T", "J", "Q", "K"];
+
 export class Deck {
   constructor() {
     this.deck = [];
@@ -32,10 +36,6 @@ export class Deck {
   reset() {
     this.deck = [];
     this.dealtCards = [];
-
-    const suits = ["H", "S", "C", "D"];
-    const values = ["A", "2", "3", "4", "5", "6", "7",
-		    "8", "9", "T", "J", "Q", "K"];
 
     for (const suit of suits) {
       for (const value of values) {

@@ -1,6 +1,7 @@
 import './style.css';
 import * as PIXI from 'pixi.js';
 import { Deck } from './deck.js';
+import * as logic from './gameLogic.js';
 
 const appState = {
   deck: new Deck(),
